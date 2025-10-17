@@ -29,6 +29,11 @@ export class Drug {
         this.benefit += this.isExpired() ? 2 : 1;
         break;
 
+      case "Dafalgan":
+        // twice as fast as normal
+        this.benefit -= this.isExpired() ? 4 : 2;
+        break;
+        
       default:
         this.benefit -= this.isExpired() ? 2 : 1;
         break;
