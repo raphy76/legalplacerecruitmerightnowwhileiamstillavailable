@@ -87,10 +87,159 @@ import { Drug, Pharmacy } from "./pharmacy";
   */
 // ################ 
 
+describe("Different kinds of drug", () => {
+
+  describe("Normal Drug", () => {
+
+    it.each([
+      [2, 3,  1, 2],
+      [1, 20, 0, 19],
+      [1, 15, 0, 14],
+      [1, 1,  0, 0],
+      [5, 10, 4, 9],
+      [1, 20, 0, 19],
+    ])(
+      "should decrease benefit and expiresIn (expiresIn=%i, benefit=%i)",
+      (expiresIn, benefit, expectedExpiresIn, expectedBenefit) => {
+        const drug = new Drug("test drug", expiresIn, benefit);
+        drug.update();
+
+        expect(drug.getExpiresIn()).toBe(expectedExpiresIn);
+        expect(drug.getBenefit()).toBe(expectedBenefit);
+      }
+    );
+
+    it.each([
+      [0, 20, -1, 18],
+      [-7, 15, -8, 13],
+      [-3, 10, -4, 8],
+    ])(
+      "should degrade benefit twice as fast after expiration (expiresIn=%i, benefit=%i)",
+      (expiresIn, benefit, expectedExpiresIn, expectedBenefit) => {
+        const drug = new Drug("test drug", expiresIn, benefit);
+        drug.update();
+
+        expect(drug.getExpiresIn()).toBe(expectedExpiresIn);
+        expect(drug.getBenefit()).toBe(expectedBenefit);
+      }
+    );
+
+    it.each([
+      [5, 0, 4, 0],
+      [-7, 1, -8, 0],
+      [0, 1, -1, 0],
+      [7, 0, 6, 0],
+    ])(
+      "should not make benefit negative (expiresIn=%i, benefit=%i)",
+      (expiresIn, benefit, expectedExpiresIn, expectedBenefit) => {
+        const drug = new Drug("test drug", expiresIn, benefit);
+        drug.update()
+
+        expect(drug.getExpiresIn()).toBe(expectedExpiresIn);
+        expect(drug.getBenefit()).toBe(expectedBenefit);
+      }
+    );
+
+  });
+
+  describe("Herbal Tea", () => {
+
+    it("should increase benefit normally", () => {
+      const drug = new Drug("Herbal Tea", 10, 10);
+      drug.update();
+
+      expect(drug.getExpiresIn()).toBe(9);
+      expect(drug.getBenefit()).toBe(11);
+    });
+
+    it("should increase benefit twice as fast after expiration", () => {
+      const drug = new Drug("Herbal Tea", 0, 10);
+      drug.update();
+
+      expect(drug.getBenefit()).toBe(12);
+    });
+
+    it("should not increase benefit over 50", () => {
+      const drug = new Drug("Herbal Tea", 5, 50);
+      drug.update();
+
+      expect(drug.getBenefit()).toBe(50);
+    });
+
+  });
+
+  describe("Magic Pill", () => {
+
+    it("should never change benefit or expiresIn", () => {
+      const drug = new Drug("Magic Pill", 5, 40);
+      drug.update();
+
+      expect(drug.getExpiresIn()).toBe(5);
+      expect(drug.getBenefit()).toBe(40);
+    });
+
+  });
+
+  describe("Fervex", () => {
+
+    it("should increase benefit by 1 normally", () => {
+      const drug = new Drug("Fervex", 15, 20);
+      drug.update();
+
+      expect(drug.getExpiresIn()).toBe(14);
+      expect(drug.getBenefit()).toBe(21);
+    });
+
+    it("should increase benefit by 2 when 10 days or less", () => {
+      const drug = new Drug("Fervex", 10, 20);
+      drug.update();
+
+      expect(drug.getExpiresIn()).toBe(9);
+      expect(drug.getBenefit()).toBe(22);
+    });
+
+    it("should increase benefit by 3 when 5 days or less", () => {
+      const drug = new Drug("Fervex", 5, 20);
+      drug.update();
+
+      expect(drug.getBenefit()).toBe(23);
+    });
+
+    it("should drop benefit to 0 after expiration", () => {
+      const drug = new Drug("Fervex", 0, 20);
+      drug.update();
+
+      expect(drug.getBenefit()).toBe(0);
+    });
+
+  });
+
+});
+
 describe("Pharmacy", () => {
+
   it("should decrease the benefit and expiresIn", () => {
     expect(new Pharmacy([new Drug("test", 2, 3)]).updateBenefitValue()).toEqual(
       [new Drug("test", 1, 2)],
     );
   });
+
+  it("should update each drug of the pharmacy", () => {
+    const pharmacy = new Pharmacy(
+      [
+        new Drug("Test drug", 10, 17), 
+        new Drug("Test drug", 10, 20), 
+        new Drug("Test drug", 10, 20),
+        new Drug("Test drug", -2, 20),
+      ]
+    );
+
+    const [drug0,drug1,drug2,drug3] = pharmacy.updateBenefitValue();
+
+    expect(drug0.getBenefit()).toBe(16);
+    expect(drug1.getBenefit()).toBe(19);
+    expect(drug2.getBenefit()).toBe(19);
+    expect(drug3.getBenefit()).toBe(18);
+  });
+
 });
