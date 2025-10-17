@@ -10,35 +10,34 @@ export class Drug {
   }
 
   update(){
-    if(this.name == "Magic Pill") return;
+    switch (this.name) {
+      case "Magic Pill":
+        return;
 
-    if(this.name == "Fervex") {
+      case "Fervex":
+        if (this.isExpired()) {
+          this.benefit = 0;
+        } else {
+          let bonus = 1;
+          if (this.expiresIn <= 10) bonus = 2;
+          if (this.expiresIn <= 5) bonus = 3;
+          this.benefit += bonus;
+        }
+        break;
 
-      if(this.isExpired()){
-        this.benefit = 0;
-      } else {
-        let bonus = 1;
-        if(this.expiresIn <= 10) bonus = 2;
-        if(this.expiresIn <= 5) bonus = 3;
+      case "Herbal Tea":
+        this.benefit += this.isExpired() ? 2 : 1;
+        break;
 
-        this.benefit += bonus;
-      }
-
-    } else {
-
-      let bonus = -1;
-      if(this.name == "Herbal Tea") bonus = 1;
-      if(this.isExpired()) bonus *= 2;
-
-      this.benefit += bonus;
-
+      default:
+        this.benefit -= this.isExpired() ? 2 : 1;
+        break;
     }
 
-    // clamp
-    if(this.benefit < 0) this.benefit = 0;
-    if(this.benefit > 50) this.benefit = 50; 
+    // Clamp
+    this.benefit = Math.min(50, Math.max(0, this.benefit));
 
-    this.expiresIn--;
+    this.expiresIn--; 
   }
 
   getExpiresIn(){
