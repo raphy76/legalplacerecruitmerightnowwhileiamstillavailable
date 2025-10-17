@@ -5,54 +5,40 @@ export class Drug {
     this.benefit = benefit;
   }
 
+  isExpired(){
+    return (this.expiresIn <= 0)
+  }
+
   update(){
-    if (
-      this.name != "Herbal Tea" &&
-      this.name != "Fervex"
-    ) {
-      if (this.benefit > 0) {
-        if (this.name != "Magic Pill") {
-          this.benefit = this.benefit - 1;
-        }
-      }
-    } else {
-      if (this.benefit < 50) {
-        this.benefit = this.benefit + 1;
-        if (this.name == "Fervex") {
-          if (this.expiresIn < 11) {
-            if (this.benefit < 50) {
-              this.benefit = this.benefit + 1;
-            }
-          }
-          if (this.expiresIn < 6) {
-            if (this.benefit < 50) {
-              this.benefit = this.benefit + 1;
-            }
-          }
-        }
-      }
-    }
-    if (this.name != "Magic Pill") {
-      this.expiresIn = this.expiresIn - 1;
-    }
-    if (this.expiresIn < 0) {
-      if (this.name != "Herbal Tea") {
-        if (this.name != "Fervex") {
-          if (this.benefit > 0) {
-            if (this.name != "Magic Pill") {
-              this.benefit = this.benefit - 1;
-            }
-          }
-        } else {
-          this.benefit =
-            this.benefit - this.benefit;
-        }
+    if(this.name == "Magic Pill") return;
+
+    if(this.name == "Fervex") {
+
+      if(this.isExpired()){
+        this.benefit = 0;
       } else {
-        if (this.benefit < 50) {
-          this.benefit = this.benefit + 1;
-        }
+        let bonus = 1;
+        if(this.expiresIn <= 10) bonus = 2;
+        if(this.expiresIn <= 5) bonus = 3;
+
+        this.benefit += bonus;
       }
-    }    
+
+    } else {
+
+      let bonus = -1;
+      if(this.name == "Herbal Tea") bonus = 1;
+      if(this.isExpired()) bonus *= 2;
+
+      this.benefit += bonus;
+
+    }
+
+    // clamp
+    if(this.benefit < 0) this.benefit = 0;
+    if(this.benefit > 50) this.benefit = 50; 
+
+    this.expiresIn--;
   }
 
   getExpiresIn(){
