@@ -214,6 +214,23 @@ describe("Different kinds of drug", () => {
 
   });
 
+  describe("Dafalgan", () => {
+
+    it("should degrade twice as fast as normal drugs", () => {
+      const drug = new Drug("Dafalgan", 10, 20);
+      drug.update();
+
+      expect(drug.getBenefit()).toBe(18);
+    });
+
+    it("should degrade twice as fast after expiration", () => {
+      const drug = new Drug("Dafalgan", 0, 10);
+      drug.update();
+
+      expect(drug.getBenefit()).toBe(6);
+    });
+
+  });
 });
 
 describe("Pharmacy", () => {
@@ -242,4 +259,21 @@ describe("Pharmacy", () => {
     expect(drug3.getBenefit()).toBe(18);
   });
 
+  it("should update each drug of the pharmacy", () => {
+    const pharmacy = new Pharmacy(
+      [
+        new Drug("Dafalgan", 10, 20), 
+        new Drug("Dafalgan", 10, 20), 
+        new Drug("Dafalgan", 10, 20),
+        new Drug("Test drug", 10, 20),
+      ]
+    );
+
+    const [drug0,drug1,drug2,drug3] = pharmacy.updateBenefitValue();
+
+    expect(drug0.getBenefit()).toBe(18);
+    expect(drug1.getBenefit()).toBe(18);
+    expect(drug2.getBenefit()).toBe(18);
+    expect(drug3.getBenefit()).toBe(19);
+  });
 });
